@@ -21,6 +21,7 @@ struct Tree{
 
 stack<nodeAVL*> s;
 string rotationType;
+string deleteFlag;
 nodeAVL* firstInbalanced = NULL;        // newInsert로 인하여 불균형으로 판명된 최초의 노드
 nodeAVL* parentInbalanced = NULL;       // firstInbalanced 부모노드
 
@@ -31,15 +32,6 @@ void initTree(Tree *T){
 // getNode()
 nodeAVL* getNode(){
     nodeAVL *newNode = (nodeAVL*)malloc(sizeof(nodeAVL));
-}
-
-// height()
-int height(nodeAVL* T, nodeAVL* endnode){
-    if(T == endnode)
-        return endnode->height;
-    else{
-    }
-       
 }
 
 // insertBST(T, newKey)
@@ -350,9 +342,121 @@ void insertAVL(Tree* T, int newKey){
     }
 }
 
+// noNodes() 서브트리의 총 노드 개수 반환 : 서브트리의 높이가 같을 때 비교
+int noNodes(nodeAVL *T){
+    if(T == NULL)
+        return 0;
+    else
+        return noNodes(T -> left) + noNodes(T -> right) + 1;
+}
+
+// maxNode() 최대노드 구하기 - left
+nodeAVL *maxNode(nodeAVL *T){
+    nodeAVL *maxnode = T;
+    if(T==NULL)
+        return NULL;
+
+    while(maxnode->right != NULL){
+        maxnode = maxnode->right;
+    }    
+    return maxnode;
+}
+
+// minNode() 최소노드 구하기- right
+nodeAVL *minNode(nodeAVL *T){
+    nodeAVL *minnode = T;
+    if(T==NULL)
+        return NULL;
+
+    while(minnode->left != NULL){
+        minnode = minnode->left;
+    }
+
+    return minnode;
+}
+
 // deleteBST(T, deleteKey)
 void deleteBST(Tree* T, int deleteKey){
-    nodeAVL* parent = NULL;
+    nodeAVL* parent = NULL;     // 삭제할 노드의 부모노드
+    nodeAVL* curr = T->root;    // 삭제할 노드
+    nodeAVL* repalceNode = NULL;    // 삭제한 자리에 대신 넣을 노드
+
+    // find posiotion of deleteKey while storing parent on stack
+    while(curr != NULL && deleteKey != curr->data){       // 현재 노드가 null이 아니고, 현재 노드의 데이터와 삭제키가 일치하지 않을때
+        parent = curr;
+        s.push(parent);
+
+        if(deleteKey < curr->data)
+            curr = curr->left;
+        else
+            curr = curr->right;
+    }
+
+    // 삭제할 원소가 없을때
+    if(curr == NULL)
+        return;
+
+    // 삭제할 노드의 차수가 2 일때      --> 높이비교   
+    if(curr->left != NULL && curr->right != NULL){
+        if(curr->left->height > curr->right->height){           // 왼쪽이 더 높음 : 왼쪽의 최대노드
+            repalceNode = maxNode(curr->left);
+            deleteFlag = "LEFT";
+        }else if(curr->left->height < curr->right->height){     // 오른쪽이 더 높음 : 오른쪽의 최소노드
+            repalceNode = minNode(curr->right);
+            deleteFlag = "RIGHT";
+        }else{                                                  // 높이 같음 : 무게비교
+            if(noNodes(curr->left) >= noNodes(curr->right)){         // 왼쪽이 더 무거움
+                repalceNode = maxNode(curr->left);
+                deleteFlag = "LEFT";
+            }else{                                                   // 오른쪽이 더 무거움
+                repalceNode = minNode(curr->right);
+                deleteFlag = "RIGHT";
+            }
+        }
+        
+        // 삭제노드 자리에 대체노드 삽입
+        curr = repalceNode;
+
+        Tree* subtree;
+        subtree->root = NULL;
+        
+        if(deleteFlag == "LEFT")
+            subtree->root = curr->left;
+        else
+            subtree->root = curr->right;
+
+        // 대체 노드의 삭제 재귀수행
+        deleteBST(subtree, repalceNode->data);
+
+
+    // 삭제할 노드의 차수가 0일때       --> 그냥 삭제
+    }else if(curr->left == NULL && curr->right == NULL){
+        if(parent->left == curr)
+            parent->left = NULL;
+        else
+            parent->right = NULL;
+    
+    // 삭제할 노드의 차수가 1일때       -- 부모노드와 이어주고 삭제
+    }else{
+        // 삭제 노드가 부모노드의 어디에 위치해있는지 확인
+        if(parent->left == curr)
+            deleteFlag = "LEFT";
+        else
+            deleteFlag = "RIGHT";
+
+        if(curr->left != NULL){
+            if(deleteFlag == "LEFT")    // 삭제노드의 왼쪽 노드가 있고, 삭제노드가 부모의 왼쪽에 위치
+                parent->left = curr->left;
+            else                        // 삭제노드의 왼쪽 노드가 있고, 삭제노드가 부모의 오른쪽에 위치
+                parent->right = curr->left;
+        }else{                          
+            if(deleteFlag == "LEFT")     // 삭제노드의 오른쪽 노드가 있고, 삭제노드가 부모의 왼쪽에 위치
+                parent->left = curr->right;
+            else                         // 삭제노드의 오른쪽 노드가 있고, 삭제노드가 부모의 오른쪽에 위치
+                parent->right = curr->right;
+        }
+    }
+
 }
 
 // deleteAVL
@@ -417,6 +521,12 @@ int main(void){
     checkBalance(&T);
 
     // 첫번째 삭제 (동일순서)
+    for(int i = 0; i < arrsize; i++){
+        deleteAVL(&T, arr[i]);
+        cout << rotationType << " ";
+        inorderBST(T.root);
+        cout << "\n";
+    }
 
 /*
     // 두번째 삽입
