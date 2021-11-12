@@ -418,9 +418,33 @@ int main(void){
 
     // 첫번째 삭제 (동일순서)
 
+/*
     // 두번째 삽입
+    for(int i = 0; i < arrsize; i++){
+        insertAVL(&T, arr[i]);
+        cout << rotationType << " ";
+        inorderBST(T.root);
+        cout << "\n";
+    }
+
+    // 마지막 bf와 height 정렬
+    nodeAVL* parent = NULL;
+    nodeAVL* rechecknode = T.root;
+
+    int lastkey = arr[arrsize-1];
+    while(rechecknode->data != lastkey){
+        parent = rechecknode;
+        s.push(parent);
+        
+        if(rechecknode->data < lastkey)
+            rechecknode = rechecknode->right;
+        else
+            rechecknode = rechecknode->left;
+    }
+    checkBalance(&T);
 
     // 두번째 삭제 (역순)
+    */
 
     return 0;
 }
