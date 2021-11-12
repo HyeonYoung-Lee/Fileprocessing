@@ -35,12 +35,9 @@ nodeAVL* getNode(){
 
 // height()
 int height(nodeAVL* T){
-    if(T == NULL)
-        return 0;
-    else
-        return max(height(T -> left) + 1, height(T -> right) + 1);
+    if(T != NULL)
+        T->height = 1 + max(height(T -> left), height(T -> right));
 }
-
 
 // insertBST(T, newKey)
 void insertBST(Tree* T, int newKey){
@@ -317,6 +314,8 @@ void rotateTree(Tree* T, string rotationType){
             parentInbalanced->height = 1 + max(parentInbalanced->left->height, parentInbalanced->right->height);
             parentInbalanced->BF = parentInbalanced->left->height - parentInbalanced->right->height;
         }
+
+        
    
     } 
 }
@@ -339,6 +338,29 @@ void insertAVL(Tree* T, int newKey){
     }
 }
 
+// deleteBST(T, deleteKey)
+void deleteBST(Tree* T, int deleteKey){
+    nodeAVL* parent = NULL;
+}
+
+// deleteAVL
+void deleteAVL(Tree* T, int deleteKey){
+    
+    /* deleteBST(T, deleteKey) */
+    deleteBST(T, deleteKey);
+
+    /* checkBalance(T) */
+    // update height and BF while popping parent from stack
+    checkBalance(T);
+    
+    /* rotataeTree(T, rotationType, p, q) */
+    // if Tree is unbalanced, rebalance Tree
+    if(rotationType == "NO")
+        return;
+    else{
+        rotateTree(T, rotationType);
+    }
+}
 
 // inorderBST(T)
 void inorderBST(nodeAVL* T){
@@ -356,15 +378,15 @@ int main(void){
 
     Tree T;
     initTree(&T);
-
+/*
     for(int i = 0; i < arrsize; i++){
         insertAVL(&T, arr[i]);
         cout << rotationType << " ";
         inorderBST(T.root);
         cout << "\n";
     }
-
-   /*
+*/
+   
     insertAVL(&T, 40);
     cout << rotationType << " ";
     inorderBST(T.root);
@@ -464,7 +486,7 @@ int main(void){
     cout << rotationType << " ";
     inorderBST(T.root);
     cout << "\n";
-    */
+    
 
 
     return 0;
