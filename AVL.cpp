@@ -21,6 +21,8 @@ struct Tree{
 
 stack<nodeAVL*> s;
 string rotationType;
+nodeAVL* firstInbalanced = NULL;        // newInsert로 인하여 불균형으로 판명된 최초의 노드
+nodeAVL* parentInbalanced = NULL;       // firstInbalanced 부모노드
 
 void initTree(Tree *T){
     T -> root = nullptr;
@@ -77,7 +79,7 @@ void insertBST(Tree* T, int newKey){
 }
 
 // checkBalance(T,newKey, rotationType, p, q)
-void checkBalance(Tree* T, string &rotationType, nodeAVL* firstInbalanced, nodeAVL* parentInbalanced){
+void checkBalance(Tree* T, string &rotationType){
 
     // update height and BF while popping parent from stack
     while(!s.empty()){
@@ -153,7 +155,7 @@ void checkBalance(Tree* T, string &rotationType, nodeAVL* firstInbalanced, nodeA
 }
 
 // rotateTree(T, rotationType, p, q)
-void rotateTree(Tree* T, string rotationType, nodeAVL* firstInbalanced, nodeAVL* parentInbalanced){
+void rotateTree(Tree* T, string rotationType){
     nodeAVL* newparent = NULL;
     string flag;
     if(parentInbalanced->left = firstInbalanced)
@@ -171,6 +173,9 @@ void rotateTree(Tree* T, string rotationType, nodeAVL* firstInbalanced, nodeAVL*
             newparent = parentInbalanced->right;
         }
 
+        // 최초 불균형노드에서 왼쪽 트리 삭제 
+        firstInbalanced->left = NULL;
+
         // 불균형노드의 왼쪽에 연결한 새로운 부모 노드의 오른쪽 트리를연결
         if(newparent->right != NULL)
             firstInbalanced->left = newparent->right;
@@ -187,6 +192,9 @@ void rotateTree(Tree* T, string rotationType, nodeAVL* firstInbalanced, nodeAVL*
             parentInbalanced->right = firstInbalanced->right;
             newparent = parentInbalanced->right;
         }
+
+        // 최초 불균형노드의 오른쪽 트리 삭제
+        firstInbalanced->right = NULL;
 
         // 불균형노드의 오른쪽에 연결한 새로운 부모 노드의 왼쪽 트리를연결
         if(newparent->left != NULL)
@@ -208,12 +216,18 @@ void rotateTree(Tree* T, string rotationType, nodeAVL* firstInbalanced, nodeAVL*
             newparent = parentInbalanced->right;
         }
 
+        // L에서 오른쪽 노드 제거
+        A->right = NULL;
+
         // L트리의 오른쪽에 새로운 부모노드의 왼쪽 트리 연결
         if(newparent->left != NULL)
             A->right = newparent->left;
         
         // 새로운 부모노드의 왼쪽에 기존L트리 연결
         newparent->left = A;
+
+        // 최초 불균형트리의 왼쪽 제거
+        firstInbalanced->left = NULL;
 
         // 최초 불균형트리의 왼쪽에 새로운 부모노드의 오른쪽 트리 연결
         if(newparent->right != NULL)
@@ -235,12 +249,18 @@ void rotateTree(Tree* T, string rotationType, nodeAVL* firstInbalanced, nodeAVL*
             newparent = parentInbalanced->right;
         }
 
+        // R트리에서 왼쪽 노드 제거
+        A->left = NULL;
+
         // R트리의 왼쪽에 새로운 부모노드의 오른쪽트리 연결
         if(newparent->right != NULL)
-            A->left = newparent->right;
-        
+            A->left = newparent->right; 
+
         // 새로운 부모노드의 오른쪽에 기존 R트리 연결
         newparent->right = A;
+
+        // 최초 불균형 노드에서 기존 R트리 제거
+        firstInbalanced->right = NULL;
 
         // 최초 불균형노드의 오른쪽에 새로운 부모노드의 왼쪽트리 연결
         if(newparent->left != NULL)
@@ -254,21 +274,19 @@ void rotateTree(Tree* T, string rotationType, nodeAVL* firstInbalanced, nodeAVL*
 
 // insertAVL
 void insertAVL(Tree* T, int newKey){
-    nodeAVL* firstInbalanced = NULL;        // newInsert로 인하여 불균형으로 판명된 최초의 노드
-    nodeAVL* parentInbalanced = NULL;       // firstInbalanced 부모노드
 
     insertBST(T, newKey);
 
     /* checkBalance(T, newKey, rotationType, curr, parent) */
     // update height and BF while popping parent from stack
-    checkBalance(T, rotationType, firstInbalanced, parentInbalanced);
+    checkBalance(T, rotationType);
     
     /* rotataeTree(T, rotationType, p, q) */
     // if Tree is unbalanced, rebalance Tree
     if(rotationType == "NO")
         return;
     else
-        rotateTree(T, rotationType, firstInbalanced, parentInbalanced);
+        rotateTree(T, rotationType);
 
 }
 
