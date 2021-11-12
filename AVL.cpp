@@ -419,7 +419,7 @@ void deleteBST(Tree* T, int deleteKey){
 
         Tree* subtree;
         subtree->root = NULL;
-        
+
         if(deleteFlag == "LEFT")
             subtree->root = curr->left;
         else
@@ -528,7 +528,7 @@ int main(void){
         cout << "\n";
     }
 
-/*
+    
     // 두번째 삽입
     for(int i = 0; i < arrsize; i++){
         insertAVL(&T, arr[i]);
@@ -538,10 +538,10 @@ int main(void){
     }
 
     // 마지막 bf와 height 정렬
-    nodeAVL* parent = NULL;
-    nodeAVL* rechecknode = T.root;
+    parent = NULL;
+    rechecknode = T.root;
 
-    int lastkey = arr[arrsize-1];
+    lastkey = arr[arrsize-1];
     while(rechecknode->data != lastkey){
         parent = rechecknode;
         s.push(parent);
@@ -554,7 +554,7 @@ int main(void){
     checkBalance(&T);
 
     // 두번째 삭제 (역순)
-    */
+    
 
     return 0;
 }
