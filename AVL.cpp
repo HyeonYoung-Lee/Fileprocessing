@@ -19,7 +19,7 @@ struct Tree{
     nodeAVL* root;
 };
 
-stack<nodeAVL> s;
+stack<nodeAVL*> s;
 string rotationType;
 
 void initTree(Tree *T){
@@ -51,7 +51,7 @@ void insertBST(Tree* T, int newKey){
             return;
         
         parent = curr;
-        s.push(*parent);
+        s.push(parent);
 
         if(newKey < curr->data)
             curr = curr->left;
@@ -64,6 +64,8 @@ void insertBST(Tree* T, int newKey){
     newNode->data = newKey;
     newNode->left = NULL;
     newNode->right = NULL;
+    newNode->height = 1;
+    newNode->BF = 0;
 
     // insert newNode for child of parentNode
     if(T->root == NULL)
@@ -79,20 +81,32 @@ void checkBalance(Tree* T, string &rotationType, nodeAVL* firstInbalanced, nodeA
 
     // update height and BF while popping parent from stack
     while(!s.empty()){
-        nodeAVL *checkNode = &s.top();
+        nodeAVL *checkNode = s.top();
         s.pop();
 
         nodeAVL *leftchild = checkNode->left;
         nodeAVL *rightchild = checkNode->right; 
 
-        checkNode->height = 1 + max(leftchild->height, rightchild->height);
-        checkNode->BF = leftchild->height - rightchild->height;
+        // 노드가 둘 다 있을 때
+        if(leftchild != NULL && rightchild != NULL){
+            checkNode->height = 1 + max(leftchild->height, rightchild->height);
+            checkNode->BF = leftchild->height - rightchild->height;
+        // 왼쪽 노드만 있을 때    
+        }else if(leftchild != NULL && rightchild == NULL){
+            checkNode->height = 1 + leftchild->height;
+            checkNode->BF = leftchild->height;
+        // 오른쪽 노드만 있을 때    
+        }else if(leftchild == NULL && rightchild != NULL){
+            checkNode->height = 1 + rightchild->height;
+            checkNode->BF = 0 - rightchild->height;
+        }
+            
 
         // BF 불균형 발생하면
         if(1 < checkNode->BF or checkNode->BF < -1){
             if(firstInbalanced == NULL){        // 최초 노드일 경우에만  
                 firstInbalanced = checkNode;       // 불균형 발생 노드 
-                parentInbalanced = &s.top();    // 불균형 발생 노드의 부모노드
+                parentInbalanced = s.top();    // 불균형 발생 노드의 부모노드
             }
         }
     }
