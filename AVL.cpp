@@ -34,9 +34,12 @@ nodeAVL* getNode(){
 }
 
 // height()
-int height(nodeAVL* T){
-    if(T != NULL)
-        T->height = 1 + max(height(T -> left), height(T -> right));
+int height(nodeAVL* T, nodeAVL* endnode){
+    if(T == endnode)
+        return endnode->height;
+    else{
+    }
+       
 }
 
 // insertBST(T, newKey)
@@ -114,6 +117,7 @@ void checkBalance(Tree* T){
         }
     }
 
+
     // rotationType 지정
     if(firstInbalanced == NULL){
         rotationType = "NO";
@@ -153,7 +157,7 @@ void checkBalance(Tree* T){
             break;
         }
     }
-}
+} 
 
 // rotateTree(T, rotationType, p, q)
 void rotateTree(Tree* T, string rotationType){
@@ -247,7 +251,6 @@ void rotateTree(Tree* T, string rotationType){
             newparent = T->root;
         }
 
-        
         A->left = NULL;                                 // R트리에서 왼쪽 노드 제거
         if(newparent->right != NULL)                    // R트리의 왼쪽에 새로운 부모노드의 오른쪽트리 연결
             A->left = newparent->right; 
@@ -260,18 +263,8 @@ void rotateTree(Tree* T, string rotationType){
     }
     
     /* update height and BF */
-    if(rotationType == "LL" or rotationType == "RR"){
-        newparent->left->height = 1;
-        newparent->left->BF = 0;
-        newparent->right->height = 1;
-        newparent->right->BF = 0;
-
-        if(parentInbalanced != NULL){
-            parentInbalanced->height = 1+ max(parentInbalanced->left->height, parentInbalanced->right->height);
-            parentInbalanced->BF = parentInbalanced->left->height - parentInbalanced->right->BF;
-        }
-
-    }else{
+    
+    if(rotationType == "LR" or rotationType == "RL"){
         nodeAVL* newleft = newparent->left;
         nodeAVL* newright = newparent->right;
 
@@ -310,14 +303,33 @@ void rotateTree(Tree* T, string rotationType){
         newparent->height = 1 + max(newleft->height, newright->height);
         newparent->BF = newleft->height - newright->height;
 
-        if(parentInbalanced != NULL){
-            parentInbalanced->height = 1 + max(parentInbalanced->left->height, parentInbalanced->right->height);
-            parentInbalanced->BF = parentInbalanced->left->height - parentInbalanced->right->height;
-        }
+    }else{
+        nodeAVL* newchild = NULL;
+        if(rotationType == "LL")                // LL
+            newchild = newparent->right;
+        else                                    // RR
+            newchild = newparent->left;
 
-        
-   
-    } 
+        if(newchild->left != NULL && newchild->right != NULL){
+            newchild->height = 1 + max(newchild->left->height, newchild->right->height);
+            newchild->BF = newchild->left->height - newchild->left->height;
+        }else if(newchild->left != NULL && newchild->right == NULL){
+            newchild->height = 1 + newchild->left->height;
+            newchild->BF = newchild->left->height;
+        }else if(newchild->left == NULL  && newchild->right != NULL){
+            newchild->height = 1 + newchild->right->height;
+            newchild->BF = 0 - newchild->right->height;
+        }else{
+            newchild->height = 1;
+            newchild->BF = 0;
+        }
+    }
+    if(parentInbalanced != NULL){
+        parentInbalanced->height = 1 + max(parentInbalanced->left->height, parentInbalanced->right->height);
+        parentInbalanced->BF = parentInbalanced->left->height - parentInbalanced->right->height;
+    }
+
+
 }
 
 // insertAVL
@@ -371,6 +383,7 @@ void inorderBST(nodeAVL* T){
     }
 }
 
+
 int main(void){
     
     int arr[] = {40, 11, 77, 33, 20, 90, 99, 70, 88, 80, 66, 10, 22, 30, 44, 55, 50, 60, 25, 49};
@@ -378,115 +391,37 @@ int main(void){
 
     Tree T;
     initTree(&T);
-/*
+
+    // 첫번째 삽입
     for(int i = 0; i < arrsize; i++){
         insertAVL(&T, arr[i]);
         cout << rotationType << " ";
         inorderBST(T.root);
         cout << "\n";
     }
-*/
-   
-    insertAVL(&T, 40);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
 
-    insertAVL(&T, 11);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
+    // 마지막 bf와 height 정렬
+    nodeAVL* parent = NULL;
+    nodeAVL* rechecknode = T.root;
 
-    insertAVL(&T, 77);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
+    int lastkey = arr[arrsize-1];
+    while(rechecknode->data != lastkey){
+        parent = rechecknode;
+        s.push(parent);
+        
+        if(rechecknode->data < lastkey)
+            rechecknode = rechecknode->right;
+        else
+            rechecknode = rechecknode->left;
+    }
+    checkBalance(&T);
 
-    insertAVL(&T, 33);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
+    // 첫번째 삭제 (동일순서)
 
-    insertAVL(&T, 20);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
+    // 두번째 삽입
 
-    insertAVL(&T, 90);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
+    // 두번째 삭제 (역순)
 
-    insertAVL(&T, 99);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-
-    insertAVL(&T, 70);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-
-    insertAVL(&T, 88);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-
-    insertAVL(&T, 80);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-    
-    insertAVL(&T, 66);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-    
-    insertAVL(&T, 10);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-    
-    insertAVL(&T, 22);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-    
-    insertAVL(&T, 30);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-    
-    insertAVL(&T, 44);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-    
-    insertAVL(&T, 55);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-    
-    insertAVL(&T, 50);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-    
-    insertAVL(&T, 60);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-    
-    insertAVL(&T, 25);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-    
-    insertAVL(&T, 49);
-    cout << rotationType << " ";
-    inorderBST(T.root);
-    cout << "\n";
-    
 
 
     return 0;
