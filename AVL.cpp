@@ -107,9 +107,12 @@ void checkBalance(Tree* T){
 
         // BF 불균형 발생하면
         if(1 < checkNode->BF or checkNode->BF < -1){
-            if(firstInbalanced == NULL){        // 최초 노드일 경우에만  
+            if(firstInbalanced == NULL){            // 최초 노드일 경우에만  
                 firstInbalanced = checkNode;       // 불균형 발생 노드 
-                parentInbalanced = s.top();    // 불균형 발생 노드의 부모노드
+                if(!s.empty())                      // 불균형 발생 노드의 부모노드
+                    parentInbalanced = s.top();
+                else
+                    parentInbalanced = NULL;    
             }
         }
     }
@@ -159,7 +162,9 @@ void checkBalance(Tree* T){
 void rotateTree(Tree* T, string rotationType){
     nodeAVL* newparent = NULL;
     string flag;
-    if(parentInbalanced->left == firstInbalanced)
+    if(parentInbalanced == NULL)            // 최초 불균형 노드가 루트노드일때
+        flag = "root";
+    else if(parentInbalanced->left == firstInbalanced)
         flag = "left";
     else
         flag = "right";
@@ -170,11 +175,13 @@ void rotateTree(Tree* T, string rotationType){
         if(flag == "left"){
             parentInbalanced->left = firstInbalanced->left;
             newparent = parentInbalanced->left;
-        }else{
-            parentInbalanced->right = firstInbalanced->right;
+        }else if(flag == "right"){
+            parentInbalanced->right = firstInbalanced->left;
             newparent = parentInbalanced->right;
+        }else{                  // 최초 불균형노드가 루트노드일때
+            T->root = firstInbalanced->left;
+            newparent = T->root;
         }
-
          
         firstInbalanced->left = NULL;                   // 최초 불균형노드에서 왼쪽 트리 삭제       
         if(newparent->right != NULL)                    // 불균형노드의 왼쪽에 연결한 새로운 부모 노드의 오른쪽 트리를연결
@@ -187,9 +194,12 @@ void rotateTree(Tree* T, string rotationType){
         if(flag == "left"){
             parentInbalanced->left = firstInbalanced->right;
             newparent = parentInbalanced->left;
-        }else{
+        }else if(flag == "right"){
             parentInbalanced->right = firstInbalanced->right;
             newparent = parentInbalanced->right;
+        }else{                  // 최초 불균형노드가 루트노드일때
+            T->root = firstInbalanced->right;
+            newparent = T->root;
         }
         
         firstInbalanced->right = NULL;                  // 최초 불균형노드의 오른쪽 트리 삭제        
@@ -206,11 +216,13 @@ void rotateTree(Tree* T, string rotationType){
         if(flag == "left"){
             parentInbalanced->left = B;
             newparent = parentInbalanced->left;
-        }else{
+        }else if(flag == "right"){
             parentInbalanced->right = B;
             newparent = parentInbalanced->right;
+        }else{                      // 최초 불균형노드가 루트노드일때
+            T->root = B;
+            newparent = T->root;
         }
-
         
         A->right = NULL;                                // L에서 오른쪽 노드 제거  
         if(newparent->left != NULL)                     // L트리의 오른쪽에 새로운 부모노드의 왼쪽 트리 연결
@@ -230,9 +242,12 @@ void rotateTree(Tree* T, string rotationType){
         if(flag == "left"){
             parentInbalanced->left = B;
             newparent = parentInbalanced->left;
-        }else{
+        }else if(flag == "right"){
             parentInbalanced->right = B;
             newparent = parentInbalanced->right;
+        }else{                      // 최초 불균형노드가 루트노드일때
+            T->root = B;
+            newparent = T->root;
         }
 
         
@@ -335,6 +350,7 @@ void inorderBST(nodeAVL* T){
 }
 
 int main(void){
+    
     int arr[] = {40, 11, 77, 33, 20, 90, 99, 70, 88, 80, 66, 10, 22, 30, 44, 55, 50, 60, 25, 49};
     int arrsize = sizeof arr / sizeof arr[0];
 
@@ -347,6 +363,109 @@ int main(void){
         inorderBST(T.root);
         cout << "\n";
     }
+
+   /*
+    insertAVL(&T, 40);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+
+    insertAVL(&T, 11);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+
+    insertAVL(&T, 77);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+
+    insertAVL(&T, 33);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+
+    insertAVL(&T, 20);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+
+    insertAVL(&T, 90);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+
+    insertAVL(&T, 99);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+
+    insertAVL(&T, 70);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+
+    insertAVL(&T, 88);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+
+    insertAVL(&T, 80);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+    
+    insertAVL(&T, 66);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+    
+    insertAVL(&T, 10);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+    
+    insertAVL(&T, 22);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+    
+    insertAVL(&T, 30);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+    
+    insertAVL(&T, 44);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+    
+    insertAVL(&T, 55);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+    
+    insertAVL(&T, 50);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+    
+    insertAVL(&T, 60);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+    
+    insertAVL(&T, 25);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+    
+    insertAVL(&T, 49);
+    cout << rotationType << " ";
+    inorderBST(T.root);
+    cout << "\n";
+    */
+
 
     return 0;
 }
