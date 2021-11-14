@@ -94,6 +94,9 @@ void checkBalance(Tree* T){
         }else if(leftchild == NULL && rightchild != NULL){
             checkNode->height = 1 + rightchild->height;
             checkNode->BF = 0 - rightchild->height;
+        }else{
+            checkNode->height = 1;
+            checkNode->BF = 0;
         }
             
 
@@ -376,9 +379,9 @@ nodeAVL *minNode(nodeAVL *T){
 }
 
 // deleteBST(T, deleteKey)
-void deleteBST(Tree* T, int deleteKey){
+void deleteBST(Tree* T, nodeAVL* startnode, int deleteKey){
     nodeAVL* parent = NULL;     // 삭제할 노드의 부모노드
-    nodeAVL* curr = T->root;    // 삭제할 노드
+    nodeAVL* curr = startnode;    // 삭제할 노드
     nodeAVL* repalceNode = NULL;    // 삭제한 자리에 대신 넣을 노드
 
     // find posiotion of deleteKey while storing parent on stack
@@ -414,27 +417,37 @@ void deleteBST(Tree* T, int deleteKey){
             }
         }
         
-        // 삭제노드 자리에 대체노드 삽입
-        curr = repalceNode;
+        // 대체노드의 데이터 저장해놓기 
+        int storeData = repalceNode->data;
 
-        Tree* subtree;
-        subtree->root = NULL;
-
-        if(deleteFlag == "LEFT")
-            subtree->root = curr->left;
-        else
-            subtree->root = curr->right;
+/*
+        // 새로 탐색할 노드 정하기
+        nodeAVL* redeleteNode = NULL;
+        if(deleteFlag == "LEFT"){
+            redeleteNode = curr->left;
+        }else{
+            redeleteNode = curr->right;
+        }
+        */
 
         // 대체 노드의 삭제 재귀수행
-        deleteBST(subtree, repalceNode->data);
+        deleteBST(T, curr, repalceNode->data);
+
+        // 삭제노드에 대체노드값 삽입
+        curr->data = repalceNode->data;
 
 
     // 삭제할 노드의 차수가 0일때       --> 그냥 삭제
     }else if(curr->left == NULL && curr->right == NULL){
-        if(parent->left == curr)
-            parent->left = NULL;
-        else
-            parent->right = NULL;
+        // 마지막 삭제(루트일때)
+        if(curr == T->root)
+            T->root = NULL;
+        else {
+            if(parent->left == curr)
+                parent->left = NULL;
+            else
+                parent->right = NULL;
+        }
     
     // 삭제할 노드의 차수가 1일때       -- 부모노드와 이어주고 삭제
     }else{
@@ -463,7 +476,7 @@ void deleteBST(Tree* T, int deleteKey){
 void deleteAVL(Tree* T, int deleteKey){
     
     /* deleteBST(T, deleteKey) */
-    deleteBST(T, deleteKey);
+    deleteBST(T, T->root, deleteKey);
 
     /* checkBalance(T) */
     // update height and BF while popping parent from stack
@@ -554,6 +567,12 @@ int main(void){
     checkBalance(&T);
 
     // 두번째 삭제 (역순)
+    for(int i = arrsize-1; i >= 1; i--){
+        deleteAVL(&T, arr[i]);
+        cout << rotationType << " ";
+        inorderBST(T.root);
+        cout << "\n";
+    }
     
 
     return 0;
