@@ -133,6 +133,10 @@ void checkBalance(Tree* T){
             rotationType = "LR";
             break;
 
+        case 0:
+            rotationType = "LL";
+            break;
+
         default:
             break;
         }
@@ -145,6 +149,10 @@ void checkBalance(Tree* T){
             break;
         
         case 1:
+            rotationType = "RL";
+            break;
+        
+        case 0:
             rotationType = "RL";
             break;
         
@@ -318,6 +326,12 @@ void rotateTree(Tree* T, string rotationType){
             newchild->height = 1;
             newchild->BF = 0;
         }
+
+        nodeAVL* newleft = newparent->left;
+        nodeAVL* newright = newparent->right;
+        
+        newparent->height = 1 + max(newleft->height, newright->height);
+        newparent->BF = newleft->height - newright->height;
     }
     if(parentInbalanced != NULL){
         parentInbalanced->height = 1 + max(parentInbalanced->left->height, parentInbalanced->right->height);
@@ -567,7 +581,7 @@ int main(void){
     checkBalance(&T);
 
     // 두번째 삭제 (역순)
-    for(int i = arrsize-1; i >= 1; i--){
+    for(int i = arrsize-1; i >= 0; i--){
         deleteAVL(&T, arr[i]);
         cout << rotationType << " ";
         inorderBST(T.root);
